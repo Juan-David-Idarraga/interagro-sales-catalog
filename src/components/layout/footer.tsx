@@ -16,7 +16,7 @@ export function Footer() {
           </p>
           <p className="flex items-center gap-2">
             <Phone size={18} className="text-interagro-green" />
-            +56 9 7446 4827
+            +56 9 3718 1027
           </p>
         </div>
       </div>

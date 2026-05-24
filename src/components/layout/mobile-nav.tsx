@@ -25,7 +25,7 @@ export function MobileNav() {
             <span className="absolute right-4 top-1 rounded-full bg-interagro-red px-1.5 text-[10px] text-white">{count}</span>
           ) : null}
         </Link>
-        <a className="flex flex-col items-center gap-1 rounded-xl p-2" href="https://wa.me/56974464827" target="_blank">
+        <a className="flex flex-col items-center gap-1 rounded-xl p-2" href="https://wa.me/56937181027" target="_blank">
           <MessageSquare size={20} />
           WhatsApp
         </a>

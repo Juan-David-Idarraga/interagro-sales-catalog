@@ -1,6 +1,6 @@
 import type { Order } from "./types";
 
-export const HUGO_PHONE = process.env.NEXT_PUBLIC_WHATSAPP_PHONE || "56974464827";
+export const HUGO_PHONE = process.env.NEXT_PUBLIC_WHATSAPP_PHONE || "56937181027";
 
 export function cleanPhoneNumber(phone: string): string {
   return phone.replace(/\D/g, "");
