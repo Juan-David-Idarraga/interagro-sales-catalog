@@ -10,7 +10,7 @@ export default function AdminCategoriesPage() {
       <PageTitle
         eyebrow="Admin"
         title="Categorias"
-        description="Gestion basica mockeada para ordenar productos del catalogo."
+        description="Revisa las categorias usadas para ordenar los productos del catalogo."
         action={
           <div className="flex flex-wrap gap-2">
             <BackButton href="/admin" label="Volver al admin" />

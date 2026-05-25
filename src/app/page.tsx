@@ -1,16 +1,17 @@
 import { ArrowRight, CalendarCheck, CheckCircle, MapPin, MessageCircle, ShieldCheck, ShoppingBag, Sparkles } from "lucide-react";
 import { InteragroLogo } from "@/components/layout/interagro-logo";
 import { LinkButton } from "@/components/ui/button";
-import { categories, products } from "@/lib/mock-data";
+import { categories } from "@/lib/mock-data";
 import { createWhatsAppLink, HUGO_PHONE } from "@/lib/whatsapp";
 import { ProductCard } from "@/components/catalog/product-card";
+import { getFeaturedProducts } from "@/lib/services/products";
 
-export default function HomePage() {
+export default async function HomePage() {
   const whatsAppLink = createWhatsAppLink(
     HUGO_PHONE,
     "Hola Hugo, quiero consultar por productos del catálogo digital Interagro.",
   );
-  const featuredProducts = products.filter((product) => product.featured).slice(0, 3);
+  const featuredProducts = (await getFeaturedProducts()).slice(0, 3);
   const benefits = [
     { icon: <ShieldCheck size={24} />, title: "Atención directa", text: "Hugo revisa cada solicitud y confirma disponibilidad por WhatsApp." },
     { icon: <CalendarCheck size={24} />, title: "Pedidos ordenados", text: "El cliente indica fecha deseada para coordinar mejor la entrega." },

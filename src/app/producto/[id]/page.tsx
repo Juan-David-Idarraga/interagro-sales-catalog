@@ -4,7 +4,7 @@ import { ProductImage } from "@/components/catalog/product-image";
 import { ConservationBadge, ProductCommercialGrid, ProductStatusBadge } from "@/components/catalog/product-badges";
 import { ProductDetailActions } from "@/components/catalog/product-detail-actions";
 import { BackButton } from "@/components/ui/back-button";
-import { products } from "@/lib/mock-data";
+import { getProductBySlug, getProductsByCategory } from "@/lib/services/products";
 
 type ProductDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -12,13 +12,13 @@ type ProductDetailPageProps = {
 
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { id } = await params;
-  const product = products.find((item) => item.slug === id || item.id === id);
+  const product = await getProductBySlug(id);
 
   if (!product) {
     notFound();
   }
 
-  const related = products.filter((item) => item.category === product.category && item.id !== product.id).slice(0, 3);
+  const related = (await getProductsByCategory(product.category)).filter((item) => item.id !== product.id).slice(0, 3);
 
   return (
     <div className="space-y-8">

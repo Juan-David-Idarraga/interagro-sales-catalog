@@ -25,6 +25,11 @@ function shouldUseSupabase() {
   return process.env.NEXT_PUBLIC_DATA_SOURCE === "supabase";
 }
 
+export type AdminProductsResult = {
+  products: Product[];
+  isDemoMode: boolean;
+};
+
 function mapProduct(row: ProductRow): Product {
   return {
     id: row.id,
@@ -49,19 +54,53 @@ function mapProduct(row: ProductRow): Product {
 export async function getProducts(): Promise<Product[]> {
   if (!shouldUseSupabase()) return mockProducts.filter((product) => product.isActive);
 
-  const supabase = createServerSupabaseClient();
-  const { data, error } = await supabase.from("products").select("*").eq("is_active", true).order("name");
-  if (error) throw error;
-  return ((data || []) as ProductRow[]).map(mapProduct);
+  try {
+    const supabase = createServerSupabaseClient();
+    const { data, error } = await supabase.from("products").select("*").eq("is_active", true).order("name");
+    if (error) throw error;
+    return ((data || []) as ProductRow[]).map(mapProduct);
+  } catch {
+    return mockProducts.filter((product) => product.isActive);
+  }
+}
+
+export async function getAdminProducts(): Promise<AdminProductsResult> {
+  if (!shouldUseSupabase()) {
+    return {
+      products: mockProducts,
+      isDemoMode: true,
+    };
+  }
+
+  try {
+    const supabase = createServerSupabaseClient();
+    const { data, error } = await supabase.from("products").select("*").order("name");
+
+    if (error) throw error;
+
+    return {
+      products: ((data || []) as ProductRow[]).map(mapProduct),
+      isDemoMode: false,
+    };
+  } catch {
+    return {
+      products: mockProducts,
+      isDemoMode: true,
+    };
+  }
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   if (!shouldUseSupabase()) return mockProducts.find((product) => product.slug === slug || product.id === slug) || null;
 
-  const supabase = createServerSupabaseClient();
-  const { data, error } = await supabase.from("products").select("*").eq("slug", slug).maybeSingle();
-  if (error) throw error;
-  return data ? mapProduct(data as ProductRow) : null;
+  try {
+    const supabase = createServerSupabaseClient();
+    const { data, error } = await supabase.from("products").select("*").eq("slug", slug).eq("is_active", true).maybeSingle();
+    if (error) throw error;
+    return data ? mapProduct(data as ProductRow) : null;
+  } catch {
+    return mockProducts.find((product) => product.slug === slug || product.id === slug) || null;
+  }
 }
 
 export async function getFeaturedProducts(): Promise<Product[]> {
@@ -95,25 +134,30 @@ export async function createProduct(data: Omit<Product, "id" | "createdAt" | "up
   });
 }
 
-export async function updateProduct(id: string, data: Partial<Product>) {
+export async function updateProduct(id: string, data: Partial<Product>): Promise<Product | ({ id: string } & Partial<Product>)> {
   if (!shouldUseSupabase()) return { id, ...data };
 
   const supabase = createServerSupabaseClient();
-  return supabase.from("products").update({
-    name: data.name,
-    slug: data.slug,
-    description: data.description,
-    category: data.category,
-    format: data.format,
-    conservation: data.conservation,
-    code: data.code,
-    price: data.price,
-    observation: data.observation,
-    image_url: data.imageUrl,
-    status: data.status,
-    is_active: data.isActive,
-    featured: data.featured,
-  }).eq("id", id);
+  const payload: Record<string, unknown> = {};
+
+  if (data.name !== undefined) payload.name = data.name;
+  if (data.slug !== undefined) payload.slug = data.slug;
+  if (data.description !== undefined) payload.description = data.description;
+  if (data.category !== undefined) payload.category = data.category;
+  if (data.format !== undefined) payload.format = data.format;
+  if (data.conservation !== undefined) payload.conservation = data.conservation;
+  if (data.code !== undefined) payload.code = data.code;
+  if (data.price !== undefined) payload.price = data.price;
+  if (data.observation !== undefined) payload.observation = data.observation;
+  if (data.imageUrl !== undefined) payload.image_url = data.imageUrl;
+  if (data.status !== undefined) payload.status = data.status;
+  if (data.isActive !== undefined) payload.is_active = data.isActive;
+  if (data.featured !== undefined) payload.featured = data.featured;
+
+  const { data: updatedProduct, error } = await supabase.from("products").update(payload).eq("id", id).select("*").single();
+
+  if (error) throw error;
+  return mapProduct(updatedProduct as ProductRow);
 }
 
 export async function deleteProduct(id: string) {

@@ -1,9 +1,12 @@
 import { CatalogView } from "@/components/catalog/catalog-view";
 import { PageTitle } from "@/components/ui/page-title";
 import { BackButton } from "@/components/ui/back-button";
-import { categories, products } from "@/lib/mock-data";
+import { categories } from "@/lib/mock-data";
+import { getProducts } from "@/lib/services/products";
 
-export default function CatalogPage() {
+export default async function CatalogPage() {
+  const products = await getProducts();
+
   return (
     <div className="space-y-5">
       <PageTitle
